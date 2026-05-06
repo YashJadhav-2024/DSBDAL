@@ -1,0 +1,95 @@
+import scala.io.StdIn.readInt
+
+object BubbleSort {
+  def main(args: Array[String]): Unit = {
+    print("Enter the number of elements: ")
+    val n = readInt()
+
+    val arr = new Array[Int](n)
+    println("Enter Elements:")
+
+    for (i <- 0 until n) {
+      arr(i) = readInt()
+    }
+
+    var temp = 0
+
+    for (i <- 0 until n - 1) {
+      for (j <- 0 until n - i - 1) {
+        if (arr(j) > arr(j + 1)) {
+          temp = arr(j)
+          arr(j) = arr(j + 1)
+          arr(j + 1) = temp
+        }
+      }
+    }
+
+    print("Sorted Elements: ")
+    for (i <- 0 until n) {
+      print(arr(i) + " ")
+    }
+    println()
+  }
+}
+
+
+import scala.io.Source
+
+object WordCount {
+  def main(args: Array[String]): Unit = {
+    if (args.length < 1) {
+      println("Usage: scala WordCount <filename>")
+      System.exit(1)
+    }
+
+    val filename = args(0)
+    val text = Source.fromFile(filename).getLines().mkString(" ")
+    val words = text.split("\\s+")
+
+    val wordCountMap = words.groupBy(word => word).map {
+      case (word, occurrences) => (word, occurrences.length)
+    }
+
+    println("Word Count:")
+    for ((word, count) <- wordCountMap) {
+      println(word + " -> " + count)
+    }
+  }
+}
+
+cat > input.txt <<'EOF'
+hello world hello spark scala world hello
+EOF
+
+scalac BubbleSort.scala
+scalac WordCount.scala
+
+scala BubbleSort
+
+scala WordCount input.txt
+
+
+spark-shell
+
+val arr = Array(64, 34, 25, 12, 22)
+
+for (i <- 0 until arr.length - 1) {
+  for (j <- 0 until arr.length - i - 1) {
+    if (arr(j) > arr(j + 1)) {
+      val temp = arr(j)
+      arr(j) = arr(j + 1)
+      arr(j + 1) = temp
+    }
+  }
+}
+
+println("Sorted elements: " + arr.mkString(" "))
+
+val textFile = sc.textFile("input.txt")
+val counts = textFile
+  .flatMap(line => line.split("\\s+"))
+  .map(word => (word, 1))
+  .reduceByKey(_ + _)
+
+counts.collect().foreach(println)
+
